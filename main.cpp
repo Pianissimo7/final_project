@@ -1,9 +1,10 @@
 #include <bits/stdc++.h>
 #include "pt_permutation.hpp"
-
+#include "sample.hpp"
 #include <fstream>
 
 using namespace project;
+using namespace std;
 pt_permutation rec(int p[], int size, int i, pt_permutation perm) {
     if (i == perm.size) {
         return perm;
@@ -65,7 +66,7 @@ int main() {
     
         // processing times
         
-        naive_algo(s.getP(), s.getN(), sample.getD());
+        naive_algo(s.getP(), s.getN(), s.getD());
     }
     return 0;
 }
