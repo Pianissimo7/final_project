@@ -1,13 +1,23 @@
+#include <iostream>
+#include "sample.hpp"
+
+using namespace project;
 class pt_permutation {
     public:
-        pt_permutation(int[], int);
-        pt_permutation(pt_permutation&);
-        int *p;
-        int size;
+        pt_permutation(const Sample* s);
+        pt_permutation(const Sample* s, int indexes[]);
+        ~pt_permutation();
+        
+        pt_permutation& operator=(const pt_permutation& other);
+        friend bool operator<(const pt_permutation& perm1, const pt_permutation& perm2);        
+        void calculate_opt();
+        void print_perm();
+        int get_cost(size_t d_index);
+        const Sample* s;
+        int *perm;
         int min_cost;
-        int p_opt;
+        int d_index;
+        
     private:
-        void calculate_min_cost_and_p_opt(int&, int&);
-        void update_opt();
-        void set_at(int, int);
+        
 };

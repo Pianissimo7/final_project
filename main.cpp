@@ -5,48 +5,42 @@
 
 using namespace project;
 using namespace std;
-pt_permutation rec(int p[], int size, int i, pt_permutation perm) {
-    if (i == perm.size) {
-        return perm;
-    }
-    // will be returned at the end, and is the optimal permutation found.
-    pt_permutation opt_perm(NULL, 0);
-    // set the min_cost of the initial optimized permutation to max.
-    opt_perm.min_cost = INT_MAX;
 
-    for (int j = 0 ; j < size; j++) {
-        // temporary permutation, a local optimum
-        pt_permutation temp_perm(perm);
+void naive_algo_rec(Sample* s, int* naturals, size_t curr_index, pt_permutation& opt_perm) {
+    if (curr_index == opt_perm.s->size) {
         
-        perm.set_at(p[j], i);
-        int rec_p[size - i];
+        pt_permutation curr_permutation(s, naturals);
         
-        // copy p into rec_p except for the i'th element (for the reccursion)
-        for (int k = 0 ; k < size; k++) {
-            if (k < i) {
-                rec_p[k] = p[k];
-            }
-            else if (k > i){
-                rec_p[k] = p[k - 1];
-            }
+        if (curr_permutation < opt_perm) {
+            opt_perm = curr_permutation;
         }
-        // get the local optimum
-        temp_perm = rec(rec_p, (size - i), (i + 1), temp_perm);
-        
-        // calculate the minimum cost of the localy optimized permutation
-        temp_perm.update_opt();
-
-        //compare to the overall optimal and replace if it is better
-        if (temp_perm.min_cost < opt_perm.min_cost) {
-            opt_perm(temp_perm);
-        }
+        return;
     }
-    return opt_perm;
+    int size = opt_perm.s->size;
+    
+    int temp;
+
+    for (int i = curr_index ; i < size ; i++) {
+        int copy[size];
+        memcpy(copy, naturals, sizeof(int) * size);
+        temp = copy[curr_index];
+        copy[curr_index] = copy[i];
+        copy[i] = temp;
+        naive_algo_rec(s, copy, curr_index + 1, opt_perm);
+    }
 }
 
-void naive_algo(int p[], int size, int d) {
-    pt_permutation perm = perm(p, size);
-    rec(p, size, 0, perm);
+void naive_algo(Sample* s) { 
+    int size = s->size;
+    int naturals[size];
+    for (int i = 0 ; i < size ; i++) {
+        naturals[i] = i;
+    }
+    
+    pt_permutation optimal_perm(s, naturals);
+    naive_algo_rec(s, naturals, 0, optimal_perm);
+    cout << endl;
+    optimal_perm.print_perm();
 }
 
 int get_min_cost(int p[], int size) {
@@ -55,37 +49,10 @@ int get_min_cost(int p[], int size) {
 
 int main() {
     
-    fstream file;
-    file.open("f.txt",ios::in);
-    
-    Sample s;
-    while(file.peek() != EOF){
-        file>>s;
-        //TODO
-        // create a sample object from each line
-    
-        // processing times
-        
-        naive_algo(s.getP(), s.getN(), s.getD());
-    }
+    Sample s(CREATE_DATA);
+    // Sample s(READ_DATA);
+    s.print_data();
+    naive_algo(&s);
+
     return 0;
 }
-
-// int get_cost(int group1[], int group2[], int d) {
-//     //sort the groups
-//     int group1_size = sizeof(group1) / sizeof(int);
-//     std::sort(group1, group1 + group1_size);
-//     int group2_size = sizeof(group2) / sizeof(int);
-//     std::sort(group2, group2 + group2_size);
-
-//     int group1_cost = 0;
-//     int group2_cost = 0;
-
-//     for (int i = 0 ; i < group1_size ; i++) {
-//         group1_cost += group1_cost + group1[i];
-//     }
-//     for (int i = 0 ; i < group2_size ; i++) {
-//         group2_cost += group2_cost + group2[i];
-//     }
-//     return group1_cost + group2_cost;
-// }
