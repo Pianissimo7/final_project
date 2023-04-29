@@ -20,6 +20,8 @@ Sample::Sample(int mode) {
         this->d += (std::rand() % MAX_OVERHEAD_D);
     }
     else {
+        // for testing a specific example.
+        // mostly for debug currently.
         this->size = 3;
         this->p = (int *)malloc(sizeof(int) * this->size);
         this->p[0] = 10;

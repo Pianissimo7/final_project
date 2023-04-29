@@ -5,11 +5,12 @@
 
 #pragma once
 
-const int MAX_SAMPLES = 5;
+const int MAX_SAMPLES = 7;
 const int MIN_SAMPLES = 3;
 const int MIN_P = 1;
 const int MAX_P = 50;
 const int MAX_OVERHEAD_D = 50;
+
 const int CREATE_DATA = 1;
 const int READ_DATA = 2;
 

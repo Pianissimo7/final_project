@@ -13,10 +13,11 @@ class pt_permutation {
         void calculate_opt();
         void print_perm();
         int get_cost(size_t d_index);
+        
         const Sample* s;
         int *perm;
         int min_cost;
-        int d_index;
+        size_t d_index;
         
     private:
         

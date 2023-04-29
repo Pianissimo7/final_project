@@ -1,0 +1,24 @@
+the data we are working on:
+    size:
+        6
+    d:
+        142
+    p[]:
+        p[0]:13
+        p[1]:15
+        p[2]:22
+        p[3]:10
+        p[4]:20
+        p[5]:25
+
+the output is:
+    the early jobs:
+        p[5]:25
+        p[2]:22
+        p[1]:15
+    the tardy jobs:
+        p[3]:10
+        p[0]:13
+        p[4]:20
+    cost:
+        128
