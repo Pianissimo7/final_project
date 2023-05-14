@@ -1,6 +1,6 @@
-OBJS	= main.o pt_permutation.o sample.o
-SOURCE	= main.cpp pt_permutation.cpp sample.cpp
-HEADER	= pt_permutation.hpp sample.hpp
+OBJS	= main.o pt_permutation.o dynamic_permutation.o sample.o
+SOURCE	= main.cpp pt_permutation.cpp dynamic_permutation.cpp sample.cpp
+HEADER	= pt_permutation.hpp dynamic_permutation.hpp sample.hpp
 OUT	= a.exe
 CC	 = g++
 FLAGS	 = -g -c -Wall

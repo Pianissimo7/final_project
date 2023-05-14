@@ -41,18 +41,23 @@ void pt_permutation::calculate_opt() {
     }
 }
 int pt_permutation::get_cost(size_t d_index) {
-     
+    return get_cost_left(d_index) + get_cost_right(d_index);
+}
+int pt_permutation::get_cost_left(size_t d_index) {
     int sum_bottom = 0;
     if (d_index > 1) {
         for (size_t i = 1 ; i < d_index ; i++) {
             sum_bottom += this->s->p[this->perm[i]] * i;
         }
     }
+    return sum_bottom;
+}
+int pt_permutation::get_cost_right(size_t d_index) {
     int sum_top = 0;
     for (size_t i = d_index ; i < s->size ; i++) {
         sum_top += this->s->p[this->perm[i]] * (s->size - i);
     }
-    return sum_bottom + sum_top;
+    return sum_top;
 }
 void pt_permutation::print_perm() {
     size_t size = s->size;

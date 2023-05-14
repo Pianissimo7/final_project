@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "pt_permutation.hpp"
+#include "dynamic_permutation.hpp"
 #include "sample.hpp"
 #include <fstream>
 
@@ -63,7 +64,7 @@ void naive_algo_rec(Sample* s, int* naturals, size_t curr_index, pt_permutation&
     }
 }
 
-void naive_algo(Sample* s) { 
+pt_permutation naive_algo(Sample* s) { 
     int size = s->size;
     int naturals[size];
     for (int i = 0 ; i < size ; i++) {
@@ -73,13 +74,41 @@ void naive_algo(Sample* s) {
     pt_permutation optimal_perm(s, naturals);
     naive_algo_rec(s, naturals, 0, optimal_perm);
     write_output_to_file(optimal_perm);
+    return optimal_perm;
+}
+dynamic_permutation dynamic_programing_algo(Sample* s) { 
+    int sorted_times[s->size];
+    memcpy(sorted_times, s->p, s->size * sizeof(int));
+
+    sort(sorted_times, sorted_times + s->size);
+    dynamic_permutation dp = dynamic_permutation(s->size);
+    //add the elements from the largest to the smallest into the dynamic permutation
+    for (size_t i = s->size ; i > 0 ; i--) {
+        dp.add_element(sorted_times[i - 1]);
+    }
+    
+    return dp;
 }
 
 int main() {
-    
-    Sample s(CREATE_DATA);
-    // Sample s(READ_DATA);
-    naive_algo(&s);
+    for (int i = 0 ; i < 1000 ; i++) {
+        Sample s(CREATE_DATA);
+        // Sample s(READ_DATA);
+        pt_permutation np = naive_algo(&s);
+        dynamic_permutation dp = dynamic_programing_algo(&s);
+        // dp.print_perm();
+        Sample sample_dp(3, dp.get_output(), s.size, s.d);
 
+        pt_permutation dp_pt_perm(&sample_dp);
+        dp_pt_perm.d_index = dp.get_element_amount_left();
+
+        bool same_cost = (dp_pt_perm.get_cost(dp.get_element_amount_left()) == np.min_cost);
+        cout << same_cost << endl;
+        if (same_cost == false) {
+            dp.print_perm();
+            break;
+        }
+    }
+    
     return 0;
 }

@@ -2,7 +2,7 @@
 using namespace std;
 using namespace project;
 
-Sample::Sample(int mode) {
+Sample::Sample(int mode, int * data, int size, int deadline) {
     if (mode == CREATE_DATA) {
         std::srand(std::time(nullptr));
         // number of processing times
@@ -19,16 +19,26 @@ Sample::Sample(int mode) {
         // just because d >= sum(p_j) and not ==
         this->d += (std::rand() % MAX_OVERHEAD_D);
     }
-    else {
+    else if (mode == READ_DATA) {
         // for testing a specific example.
         // mostly for debug currently.
-        this->size = 3;
+        
+        this->size = 7;
         this->p = (int *)malloc(sizeof(int) * this->size);
-        this->p[0] = 10;
-        this->p[1] = 1;
-        this->p[2] = 1;
+        this->p[0] = 1;
+        this->p[1] = 26;
+        this->p[2] = 2;
+        this->p[3] = 49;
+        this->p[4] = 3;
+        this->p[5] = 36;
+        this->p[6] = 28;
         
         this->d = 121;
+    }
+    else {
+        this->p = data;
+        this->size = size;
+        this->d = deadline;
     }
 }
 

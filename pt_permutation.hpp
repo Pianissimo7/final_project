@@ -9,10 +9,12 @@ class pt_permutation {
         ~pt_permutation();
         
         pt_permutation& operator=(const pt_permutation& other);
-        friend bool operator<(const pt_permutation& perm1, const pt_permutation& perm2);        
+        friend bool operator<(const pt_permutation& perm1, const pt_permutation& perm2);
         void calculate_opt();
         void print_perm();
         int get_cost(size_t d_index);
+        int get_cost_left(size_t d_index);
+        int get_cost_right(size_t d_index);
         
         const Sample* s;
         int *perm;
