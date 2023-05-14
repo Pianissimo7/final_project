@@ -15,7 +15,7 @@ class pt_permutation {
         int get_cost(size_t d_index);
         int get_cost_left(size_t d_index);
         int get_cost_right(size_t d_index);
-        
+
         const Sample* s;
         int *perm;
         int min_cost;

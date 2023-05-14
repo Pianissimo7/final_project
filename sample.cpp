@@ -2,22 +2,23 @@
 using namespace std;
 using namespace project;
 
-Sample::Sample(int mode, int * data, int size, int deadline) {
+Sample::Sample(int mode, int seed, int * data, int size, int deadline) {
     if (mode == CREATE_DATA) {
-        std::srand(std::time(nullptr));
+        std::srand(seed);
         // number of processing times
         this->size = MIN_SAMPLES + std::rand() % (MAX_SAMPLES - MIN_SAMPLES);
+    
         // and array to store the processing times
         this->p = (int *)malloc(sizeof(int) * this->size);
         this->d = 0;
         for (size_t i = 0 ; i < this->size ; i++) {
             // randomize a value for each of the n processing times
-            this->p[i] = MIN_P + std::rand() % (MAX_P - MIN_P);
+            this->p[i] = MIN_P + std::rand() % ((MAX_P + 1) - MIN_P);
             // sum up the processing times to get d
             this->d += this->p[i];
         }
         // just because d >= sum(p_j) and not ==
-        this->d += (std::rand() % MAX_OVERHEAD_D);
+        this->d += (std::rand() % (MAX_OVERHEAD_D + 1));
     }
     else if (mode == READ_DATA) {
         // for testing a specific example.
@@ -25,15 +26,19 @@ Sample::Sample(int mode, int * data, int size, int deadline) {
         
         this->size = 7;
         this->p = (int *)malloc(sizeof(int) * this->size);
-        this->p[0] = 1;
-        this->p[1] = 26;
-        this->p[2] = 2;
-        this->p[3] = 49;
-        this->p[4] = 3;
-        this->p[5] = 36;
-        this->p[6] = 28;
+        this->p[0] = 10;
+        this->p[1] = 23;
+        this->p[2] = 28;
+        this->p[3] = 30;
+        this->p[4] = 32;
+        this->p[5] = 38;
+        this->p[6] = 39;
         
-        this->d = 121;
+        this->d = 100;
+        for (size_t i = 0 ; i < this->size ; i++) {
+            this->d += p[i];
+        }
+        
     }
     else {
         this->p = data;

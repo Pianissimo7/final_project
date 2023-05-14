@@ -5,8 +5,8 @@
 
 #pragma once
 
-const int MAX_SAMPLES = 10;
-const int MIN_SAMPLES = 9;
+const int MAX_SAMPLES = 5;
+const int MIN_SAMPLES = 4;
 const int MIN_P = 1;
 const int MAX_P = 50;
 const int MAX_OVERHEAD_D = 50;
@@ -19,7 +19,7 @@ namespace project{
 
     class Sample {
         public:
-            Sample(int mode, int * data = NULL, int size = 0, int deadline = 0);
+            Sample(int mode, int seed = std::time(nullptr), int * data = NULL, int size = 0, int deadline = 0);
             ~Sample();
             
             void print_data() const;

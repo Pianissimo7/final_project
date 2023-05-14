@@ -65,7 +65,7 @@ void pt_permutation::print_perm() {
     cout<<"d_index = " << this->d_index << endl;
     cout<<"min_cost = " << this->min_cost << endl;
     for (size_t i = 0 ; i < size ; i++) {
-        cout << "    p_" << i << " = " << this->s->p[this->perm[i]] << endl;
+        cout << "    (" << this->perm[i] << ")p_" << i << " = " << this->s->p[this->perm[i]] << endl;
     }
 }
 bool operator<(const pt_permutation& perm1, const pt_permutation& perm2) {
