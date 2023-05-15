@@ -6,10 +6,14 @@ CC	 = g++
 FLAGS	 = -g -c -Wall
 LFLAGS	 = 
 
-all: $(OBJS)
+all: a.exe
+
+run: a.exe
+	./a.exe
+
+a.exe: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-	
 
 %.o: %.cpp $(HEADER)	
 	$(CC) $(FLAGS) --compile $< --std=c++14 -o $@

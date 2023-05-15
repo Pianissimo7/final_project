@@ -7,8 +7,8 @@
 using namespace project;
 using namespace std;
 
-string FILE_PATH = "example.txt";
-char DELIMITER = ';';
+string FILE_PATH = "example.csv";
+char DELIMITER = ',';
 string NAIVE_ALGO = "NAIVE";
 string DYNAMIC_ALGO = "DYNAMIC";
 
@@ -46,6 +46,7 @@ pt_permutation naive_algo(const Sample* s) {
     naive_algo_rec(s, naturals, 0, optimal_perm);
     return optimal_perm;
 }
+
 dynamic_permutation dynamic_programing_algo(Sample* s) { 
     int sorted_times[s->size];
     int max_p_time = *max_element(s->p, s->p + s->size);
@@ -80,7 +81,7 @@ void prepare_output_file(ofstream& file) {
     file << "D_Index" << DELIMITER << "\n";
 }
 
-void write_output_to_file(ofstream& file, int cycle_number, string algo_name, pt_permutation perm) {
+void write_output_to_file(ofstream& file, int cycle_number, string algo_name, const pt_permutation &perm) {
     file << to_string(cycle_number) << DELIMITER;
     file << algo_name << DELIMITER;
     for (size_t i = 0 ; i < MAX_SAMPLES ; i++) {
@@ -100,7 +101,8 @@ int main() {
     ofstream file(FILE_PATH, ios::trunc);
     prepare_output_file(file);
     if (file.is_open()) {
-        for (int i = 0 ; i < 100 ; i++) {
+        for (int i = 0 ; i < 1000 ; i++) {
+            
             Sample s(CREATE_DATA, i);
             // Sample s(READ_DATA);
             pt_permutation np = naive_algo(&s);

@@ -6,7 +6,7 @@ Sample::Sample(int mode, int seed, int * data, int size, int deadline) {
     if (mode == CREATE_DATA) {
         std::srand(seed);
         // number of processing times
-        this->size = MIN_SAMPLES + std::rand() % (MAX_SAMPLES - MIN_SAMPLES);
+        this->size = MIN_SAMPLES + std::rand() % ((MAX_SAMPLES + 1) - MIN_SAMPLES);
     
         // and array to store the processing times
         this->p = (int *)malloc(sizeof(int) * this->size);
