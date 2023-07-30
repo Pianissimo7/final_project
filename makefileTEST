@@ -1,0 +1,31 @@
+
+SOURCE_PATH=sources
+HEADER_PATH=headers
+OBJECT_PATH=objects
+
+SOURCES=$(wildcard $(SOURCE_PATH)/*.cpp)
+HEADERS=$(wildcard $(HEADER_PATH)/*.hpp)
+OBJECTS=$(subst sources/,objects/,$(subst .cpp,.o,$(SOURCES)))
+
+OUT	= a.exe
+CC	 = g++
+FLAGS	 = -g -c -Wall
+LFLAGS	 = 
+
+all: a.exe
+
+run: a.exe
+	./a.exe
+
+a.exe: $(OBJECTS)
+	$(CC) -g $(OBJECTS) -o $(OUT) $(LFLAGS)
+
+
+%.o: $(SOURCES) $(HEADERS)	
+	$(CC) $(FLAGS) --compile $< --std=c++14 -o $@
+
+$(OBJECTS): $(SOURCES) $(HEADERS)
+	$(CXX) $(CXXFLAGS) --compile $< -o $@
+
+clean:
+	del $(OBJECTS) *.o *.exe
