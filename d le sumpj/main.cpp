@@ -1,36 +1,48 @@
 #include "headers/permutation.hpp"
 #include "headers/cache.hpp"
+#include "headers/bruteforcesolver.hpp"
 #include <iostream>
 #include <cmath>
 #include <string.h>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <algorithm>
 
 using namespace std;
 size_t rec_counter = 0;
 // takes an array of doubles and converts it to an array of elements
-element * MakeElementArray(double *p, size_t size) {
-    element * elements = (element *) malloc(sizeof(element) * size);
+vector<element *> MakeSortedElementArray(double * p, size_t size) {
+    
+    vector<element *> * ElementVector = new vector<element *>();
+    ElementVector->reserve(size);
+    
+    double SortedP[size];
     for (size_t i = 0 ; i < size ; i++) {
-        element e(p[i], i);
-        memcpy(&elements[i], &e, sizeof(element));
+        SortedP[i] = p[i];
     }
-    return elements;
+    sort(SortedP, SortedP + size);
+
+    for (size_t i = 0 ; i < size ; i++) {
+        ElementVector->emplace_back(new element(SortedP[i], i));
+    }
+    
+    return *ElementVector;
 }
 
 std::shared_ptr<permutation> getOptimalPermutation(vector<element *> OrderedElements, size_t index, double d, cache * MyCache) {
     // use a pereviously calculated sub optimal permutation to calculate the bigger sub optimal permutation
-    if (MyCache->PermMap[index]->find(max(d, 0.0)) != MyCache->PermMap[index]->end()) {
-        return (*(MyCache->PermMap[index]))[max(d, 0.0)];
+    
+    double Optd = min(max(d, 0.0), MyCache->OptDDgeSumPjs[index]);
+    if (MyCache->PermMap[index]->find(Optd) != MyCache->PermMap[index]->end()) {
+        return (*(MyCache->PermMap[index]))[Optd];
     }
-
+    
     rec_counter++;
     
     shared_ptr<permutation> OptimalPerm;
     element * e = OrderedElements[index];
 
-    if (max(d, 0.0) == 0.0) {
+    if (Optd == 0.0) {
         OptimalPerm = make_shared<permutation>();
         for (size_t i = 0 ; i <= index ; i++) {
             OptimalPerm->AddToEnd(OrderedElements[i]);
@@ -54,7 +66,7 @@ std::shared_ptr<permutation> getOptimalPermutation(vector<element *> OrderedElem
     double CostRight = 0;
     double RunningSum = 0;
     for (size_t i = 0 ; i < index ; i++) {
-        RunningSum =+ OrderedElements[i]->getValue();
+        RunningSum += OrderedElements[i]->getValue();
         CostRight += fabs(RunningSum - d);
     }
     shared_ptr<permutation> RightOptPerm = getOptimalPermutation(OrderedElements, index - 1, d, MyCache);
@@ -69,16 +81,18 @@ std::shared_ptr<permutation> getOptimalPermutation(vector<element *> OrderedElem
         OptimalPerm->AddToStart(e);
     }
     // add the optimal permutation for this scenario to the cache
-    (*MyCache->PermMap[index])[d] = OptimalPerm;
+    (*MyCache->PermMap[index])[Optd] = OptimalPerm;
     
     return OptimalPerm;
 }
 
-permutation * getOptimalPermutation(vector<element *> OrderedElements, double d) {
+permutation * getOptimalPermutation(double * p, size_t size, double d) {
     
-    cache * MyCache = new cache(OrderedElements);
+    vector<element *> SortedElementVector = MakeSortedElementArray(p, size);
+
+    cache * MyCache = new cache(SortedElementVector);
     
-    double OptDDgeSumPj = MyCache->OptDDgeSumPjs[OrderedElements.size() - 1];
+    double OptDDgeSumPj = MyCache->OptDDgeSumPjs[SortedElementVector.size() - 1];
 
     if (d >= OptDDgeSumPj) {
         permutation * DgeSumPj = new permutation(MyCache->DgeSumPj);
@@ -86,37 +100,37 @@ permutation * getOptimalPermutation(vector<element *> OrderedElements, double d)
         return DgeSumPj;
     }    
     // now we can assume that d < SumPj
-    permutation * OptimalPerm = getOptimalPermutation(OrderedElements, OrderedElements.size() - 1, d, MyCache).get();
+    permutation * OptimalPerm = new permutation(getOptimalPermutation(SortedElementVector, SortedElementVector.size() - 1, d, MyCache).get());
     delete(MyCache);
     return OptimalPerm;
 }
 
 int main() {
-    // pj
-    double p[] = {1, 2, 3, 7, 9, 13, 16, 23, 30, 34};
-    // double p[] = {1, 2, 3, 7, 9, 13};
+    // processing times array
+    double p[] = {1, 2, 3, 34, 7, 9, 13, 16, 23, 30};
+
+    // double p[] = {7, 5, 6, 3};
     // size of the array
-    size_t size = (size_t)(sizeof(p) / sizeof(double));
+    size_t size = (sizeof(p) / sizeof(double));
     // deadline
     size_t d = 50;
     
-    element * arr = MakeElementArray(p, size);
-    vector<element *> OrderedElements;
-    for (size_t i = 0 ; i < size ; i++) {
-        OrderedElements.push_back(&(arr[i]));
-    }
-    for (auto element : OrderedElements) {
-        cout << element->getValue() << " ";    
-    }
-    cout << endl;
-    cout << endl;
-    permutation * OptimalPerm = getOptimalPermutation(OrderedElements, d);
-    cout << "optimal perm: ";
+    permutation * OptimalPerm = getOptimalPermutation(p, size, d);
+    cout << "dynamic programing optimal perm: ";
     OptimalPerm->print();
-    cout << "optimal perm cost: " << to_string(OptimalPerm->getCost(d)) << endl;
+    cout << "dynamic programing min cost: " << to_string(OptimalPerm->getCostWithOffset(d)) << endl;
     cout << "reccursion count: " << to_string(rec_counter) << endl;
+    OptimalPerm->clear();
 
-    free(arr);
-    cout << "SUCCESS" << endl;
+    bruteforcesolver bfs(p, size, d);
+    vector<double> opt = bfs.getSolution();
+    cout << "brute force optimal perm: ";
+    for (size_t i = 0 ; i < size ; i++) {
+        cout << to_string(opt[i]) << ", ";
+    }
+    cout << endl;
+    cout << "brute force min cost: " << to_string(bfs.CalculateMinCost(opt)) << endl;
+    delete(&bfs);
+
     return 0;
 }

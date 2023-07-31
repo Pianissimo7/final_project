@@ -20,10 +20,16 @@ class permutation {
         void AddToEnd(element * e);
         list<element *>::iterator getStart();
         list<element *>::iterator getEnd();
+        std::list<element *>::reverse_iterator getReverseStart();
+        std::list<element *>::reverse_iterator getReverseEnd();
         double getCost(double d);
+        double getCostWithOffset(double d);
         void print();
+        void clear();
     private:
         list<element *> perm;
         double sum;
+        double offset;
+
         
 };
