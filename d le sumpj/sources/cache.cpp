@@ -10,6 +10,7 @@ cache::cache(vector<element *> OrderedElements) {
     for (size_t i = 0 ; i < this->size ; i++) { 
         this->PermMap[i] = new unordered_map<double, shared_ptr<permutation>>();
     }
+    
 }
 cache::~cache() {
 
@@ -38,34 +39,13 @@ permutation * cache::getDgeSumPj(vector<element *> OrderedElements) {
 }
 double * cache::getAllDOptPerIndex() {
     double * AllDOptPerIndex = (double *) calloc(sizeof(double), this->size);
-    
-    size_t index = this->size - 1;
-    
-    size_t i = 0;
-    for (list<element *>::iterator it = this->DgeSumPj->getStart() ; it != this->DgeSumPj->getEnd(); ++it, i++) {
-        if (i < this->size / 2 + (this->size % 2)) {
-            AllDOptPerIndex[index] += (*it)->getValue();
-        }
-        else {
-            AllDOptPerIndex[index - 1] += (*it)->getValue();
-        }
+  
+    size_t index = 0;
+    double sum = 0;
+    for (list<element *>::iterator it = this->DgeSumPj->getStart() ; it != this->DgeSumPj->getEnd(); ++it, index++) {
+        sum += (*it)->getValue();
+        AllDOptPerIndex[index] = sum;
     }
-    
-    index -= 2;
-    
-    list<element *>::iterator start = this->DgeSumPj->getStart();
-    std::list<element *>::reverse_iterator end = this->DgeSumPj->getReverseStart();
-    
-    for (; index + 1 > 0 ; index--) {
-        if ((this->size + index) % 2 == 1) {
-            AllDOptPerIndex[index] = AllDOptPerIndex[index + 2] - (*start)->getValue();
-            ++start;
-        }
-        else {
-            AllDOptPerIndex[index] = AllDOptPerIndex[index + 2] - (*end)->getValue();
-            ++end;
-        }
-    }
-    
+
     return AllDOptPerIndex;
 }

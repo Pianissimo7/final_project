@@ -1,12 +1,10 @@
 #include "../headers/permutation.hpp"
 permutation::permutation() {
-    this->offset = 0;
 }
 permutation::permutation(permutation * other) {
     for (list<element *>::iterator it = other->getStart(); it != other->getEnd(); ++it) {
         this->perm.push_back(*it);
     }
-    this->offset = other->offset;
 }
 permutation::~permutation() {
 
@@ -16,7 +14,6 @@ size_t permutation::getSize() {
 }
 void permutation::AddToStart(element * e) {
     this->perm.push_front(e);
-    this->offset += e->getValue();
 }
 void permutation::AddToEnd(element * e) {
     this->perm.push_back(e);
@@ -34,12 +31,28 @@ std::list<element *>::reverse_iterator permutation::getReverseEnd() {
     return this->perm.rend();
 }
 void permutation::print() {
-    for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {
-        cout << to_string((*it)->getValue()) << ", ";
+    if (this->getSize() > 0 ) {
+        for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {
+            cout << to_string((*it)->getValue()) << ", ";
+        }     
     }
+    else
+        cout << "Empty Permutation";
     cout << endl;
 }
+
 double permutation::getCost(double d) {
+    double MinCost = getNaiveCost(d);
+    double offset = 0;
+    for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
+        offset += (*it)->getValue();
+        if (offset >= d) 
+            break;
+        MinCost = min(MinCost, getNaiveCost(offset));
+    }
+    return MinCost;
+}
+double permutation::getNaiveCost(double d) {
     double Cost = 0;
     double RunningSum = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {
@@ -47,9 +60,6 @@ double permutation::getCost(double d) {
         Cost += fabs(RunningSum - d);
     }
     return Cost;
-}
-double permutation::getCostWithOffset(double d) {
-    return this->getCost(min(this->offset, d));
 }
 void permutation::clear() {
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {

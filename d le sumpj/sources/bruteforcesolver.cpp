@@ -14,23 +14,26 @@ bruteforcesolver::~bruteforcesolver() {
     free(this->p);
 }
 vector<double> bruteforcesolver::getSolution() {
-    vector<double> PVector(this->p, this->p + this->size);
-    sort(PVector.begin(), PVector.end());
+    vector<double> * PVector = new vector<double>(this->p, this->p + this->size);
+    sort(PVector->begin(), PVector->end());
     double MinCost = numeric_limits<double>::max();
     vector<double> bestPermutation;
     
     do {
-        double CurrentCost = this->CalculateMinCost(PVector);
+        double CurrentCost = this->CalculateMinCost(*PVector);
         if (CurrentCost < MinCost) {
             MinCost = CurrentCost;
-            bestPermutation = PVector;
+            bestPermutation = *PVector;
         }
-    } while (next_permutation(PVector.begin(), PVector.end()));
+    } while (next_permutation(PVector->begin(), PVector->end()));
+    
+    delete(PVector);
+
     return bestPermutation;
 }
 double bruteforcesolver::CalculateMinCost(vector<double> PVector) {
     double sum = 0.0;
-    double MinCost = numeric_limits<double>::max();
+    double MinCost = CalculateMinCostPerD(PVector, this->d);
     size_t i = 0;
     while(sum < this->d) {
         MinCost = min(CalculateMinCostPerD(PVector, sum), MinCost);
@@ -40,13 +43,12 @@ double bruteforcesolver::CalculateMinCost(vector<double> PVector) {
         sum += PVector[i];
         i++;
     }
-    MinCost = min(CalculateMinCostPerD(PVector, min(sum, this->d)), MinCost);
     return MinCost;
 }
 double bruteforcesolver::CalculateMinCostPerD(vector<double> PVector, double d) {
     double Cost = 0;
     double RunningSum = 0;
-    for (size_t i = 0 ; i < PVector.size() ; i++) {
+    for (size_t i = 0 ; i < this->size ; i++) {
         RunningSum += PVector[i];
         Cost += fabs(RunningSum - d);
     }

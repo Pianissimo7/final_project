@@ -23,13 +23,10 @@ class permutation {
         std::list<element *>::reverse_iterator getReverseStart();
         std::list<element *>::reverse_iterator getReverseEnd();
         double getCost(double d);
-        double getCostWithOffset(double d);
+        double getNaiveCost(double d);
         void print();
         void clear();
     private:
         list<element *> perm;
         double sum;
-        double offset;
-
-        
 };
