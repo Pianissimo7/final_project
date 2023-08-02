@@ -5,16 +5,19 @@ using namespace std;
 cache::cache(vector<element *> OrderedElements) {
     this->size = OrderedElements.size();
     this->DgeSumPj = this->getDgeSumPj(OrderedElements);
-    this->PermMap = (unordered_map<double, shared_ptr<permutation>> **) malloc(sizeof(unordered_map<double, shared_ptr<permutation>> **) * this->size);
-    this->OptDDgeSumPjs = this->getAllDOptPerIndex();
+    this->PermMap = (unordered_map<double, permutation *> **) malloc(sizeof(unordered_map<double, permutation *> **) * this->size);
     for (size_t i = 0 ; i < this->size ; i++) { 
-        this->PermMap[i] = new unordered_map<double, shared_ptr<permutation>>();
+        this->PermMap[i] = new unordered_map<double, permutation *>();
     }
+    this->OptDDgeSumPjs = this->getAllDOptPerIndex();
     
 }
 cache::~cache() {
 
     for (size_t i = 0 ; i < this->size ; i++) {
+        for (auto it = this->PermMap[i]->begin(); it != this->PermMap[i]->end(); ++it) {
+            delete it->second; // Delete each object pointed to by the raw pointer
+        }
         this->PermMap[i]->clear();
     }
     free(this->PermMap);
@@ -48,4 +51,14 @@ double * cache::getAllDOptPerIndex() {
     }
 
     return AllDOptPerIndex;
+}
+void cache::printMap() {
+    cout << "Print Map " << endl;
+    for (size_t i = 0 ; i < this->size ; i++) {
+        for (auto it = this->PermMap[i]->begin(); it != this->PermMap[i]->end(); ++it) {
+            cout << "index: " << i << " d: " << to_string(it->first) << " ";
+            cout << "perm: ";
+            it->second->print();// Delete each object pointed to by the raw pointer
+        }
+    }
 }

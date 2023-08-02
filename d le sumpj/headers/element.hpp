@@ -2,12 +2,9 @@
 
 class element {
     public:
-        element(double value, size_t index): value(value), index(index) {}
+        element(double value): value(value) {}
         double getValue() const;
-        size_t getIndex() const;
-        bool operator>(element other) const;
-        bool operator<(element other) const;
+        
     private:
         double value;
-        size_t index;
 };

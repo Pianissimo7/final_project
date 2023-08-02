@@ -20,9 +20,7 @@ class permutation {
         void AddToEnd(element * e);
         list<element *>::iterator getStart();
         list<element *>::iterator getEnd();
-        std::list<element *>::reverse_iterator getReverseStart();
-        std::list<element *>::reverse_iterator getReverseEnd();
-        double getCost(double d);
+        double getCost(double d, double * OutOffset = nullptr);
         double getNaiveCost(double d);
         void print();
         void clear();

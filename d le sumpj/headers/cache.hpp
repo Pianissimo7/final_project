@@ -8,8 +8,9 @@ class cache {
         cache(vector<element *> OrderedElements);
         ~cache();
         permutation * DgeSumPj;
-        unordered_map<double, shared_ptr<permutation>> ** PermMap;
+        unordered_map<double, permutation *> ** PermMap;
         double * OptDDgeSumPjs;
+        void printMap();
     private:
         double getOptDDgeSumPj();
         permutation * getDgeSumPj(vector<element *> OrderedElements);

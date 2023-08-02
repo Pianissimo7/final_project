@@ -24,31 +24,35 @@ list<element *>::iterator permutation::getStart() {
 list<element *>::iterator permutation::getEnd() {
     return this->perm.end();
 }
-std::list<element *>::reverse_iterator permutation::getReverseStart() {
-     return this->perm.rbegin();
-}
-std::list<element *>::reverse_iterator permutation::getReverseEnd() {
-    return this->perm.rend();
-}
 void permutation::print() {
     if (this->getSize() > 0 ) {
         for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {
             cout << to_string((*it)->getValue()) << ", ";
         }     
     }
-    else
+    else {
         cout << "Empty Permutation";
+    }
     cout << endl;
 }
 
-double permutation::getCost(double d) {
+double permutation::getCost(double d, double * OutOffset) {
     double MinCost = getNaiveCost(d);
     double offset = 0;
+    double MinCostOffset = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
         offset += (*it)->getValue();
-        if (offset >= d) 
+        if (offset >= d) { 
             break;
-        MinCost = min(MinCost, getNaiveCost(offset));
+        }
+        double cost = getNaiveCost(offset);
+        if (MinCost > cost) {
+            MinCost = cost;
+            MinCostOffset = offset;
+        }
+    }
+    if (OutOffset != nullptr) {
+        *OutOffset = MinCostOffset;
     }
     return MinCost;
 }
