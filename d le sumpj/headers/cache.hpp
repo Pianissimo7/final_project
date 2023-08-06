@@ -9,11 +9,10 @@ class cache {
         ~cache();
         permutation * DgeSumPj;
         unordered_map<double, permutation *> ** PermMap;
-        double * OptDDgeSumPjs;
+        double * RunningSums;
         void printMap();
     private:
-        double getOptDDgeSumPj();
         permutation * getDgeSumPj(vector<element *> OrderedElements);
-        double * getAllDOptPerIndex();
+        double * getRunningSums(vector<element *> OrderedElements);
         size_t size;
 };

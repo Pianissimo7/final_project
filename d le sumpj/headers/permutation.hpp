@@ -7,6 +7,7 @@
 #include <math.h>
 #include <list>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ class permutation {
         void AddToEnd(element * e);
         list<element *>::iterator getStart();
         list<element *>::iterator getEnd();
-        double getCost(double d, double * OutOffset = nullptr);
+        double getCost(double d, double * OutOffset=nullptr, double RunningSum=0, size_t ElementLeftNo=0, size_t ElementRightNo=0);
         double getNaiveCost(double d);
         void print();
         void clear();

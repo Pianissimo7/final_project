@@ -9,23 +9,19 @@ cache::cache(vector<element *> OrderedElements) {
     for (size_t i = 0 ; i < this->size ; i++) { 
         this->PermMap[i] = new unordered_map<double, permutation *>();
     }
-    this->OptDDgeSumPjs = this->getAllDOptPerIndex();
-    
+    this->RunningSums = this->getRunningSums(OrderedElements);
 }
 cache::~cache() {
 
     for (size_t i = 0 ; i < this->size ; i++) {
         for (auto it = this->PermMap[i]->begin(); it != this->PermMap[i]->end(); ++it) {
-            delete it->second; // Delete each object pointed to by the raw pointer
+            delete(it->second); // Delete each object pointed to by the raw pointer
         }
         this->PermMap[i]->clear();
     }
     free(this->PermMap);
     delete(this->DgeSumPj);
-    free(this->OptDDgeSumPjs);
-}
-double cache::getOptDDgeSumPj() {
-    return this->OptDDgeSumPjs[this->size - 1];
+    free(this->RunningSums);
 }
 permutation * cache::getDgeSumPj(vector<element *> OrderedElements) {
     permutation * perm = new permutation();
@@ -40,17 +36,15 @@ permutation * cache::getDgeSumPj(vector<element *> OrderedElements) {
     }
     return perm;
 }
-double * cache::getAllDOptPerIndex() {
-    double * AllDOptPerIndex = (double *) calloc(sizeof(double), this->size);
-  
-    size_t index = 0;
-    double sum = 0;
-    for (list<element *>::iterator it = this->DgeSumPj->getStart() ; it != this->DgeSumPj->getEnd(); ++it, index++) {
-        sum += (*it)->getValue();
-        AllDOptPerIndex[index] = sum;
+double * cache::getRunningSums(vector<element *> OrderedElements) {
+    double * RunningSums = (double *) calloc(sizeof(double), this->size);
+    double RunningSum = 0;
+    for (size_t i = 0 ; i < OrderedElements.size() ; i++) {
+        RunningSum += OrderedElements[i]->getValue();
+        RunningSums[i] = RunningSum;
     }
 
-    return AllDOptPerIndex;
+    return RunningSums;
 }
 void cache::printMap() {
     cout << "Print Map " << endl;
