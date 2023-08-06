@@ -36,16 +36,14 @@ void permutation::print() {
     cout << endl;
 }
 
-double permutation::getCost(double d, double * OutOffset, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
+double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
     double MinCost = numeric_limits<double>::max();;
     double offset = 0;
-    double MinCostOffset = 0;
     
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
         double cost = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
         if (MinCost > cost) {
             MinCost = cost;
-            MinCostOffset = offset; 
         }
         if (offset + (*it)->getValue() >= d) { 
             break;
@@ -57,14 +55,8 @@ double permutation::getCost(double d, double * OutOffset, double RunningSum, siz
     
     if (DMinCost <= MinCost) {
         MinCost = DMinCost;
-        MinCostOffset = d;
     }
-    
-    
-    if (OutOffset != nullptr) {
-        *OutOffset = MinCostOffset;
-    }
-    return MinCost ;
+    return MinCost;
 }
 double permutation::getNaiveCost(double d) {
     double Cost = 0;

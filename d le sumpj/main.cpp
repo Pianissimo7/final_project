@@ -69,32 +69,21 @@ permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t in
     
     permutation * LeftOptPerm = getOptimalPermutation(OrderedElements, index - 1, d - e->getValue(), MyCache, ElementsLeftNo + 1, ElementsRightNo);
     LeftOptPerm->AddToStart(e);
-    double LeftOffset;
-    double CostLeft = LeftOptPerm->getCost(d, &LeftOffset, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
+    double CostLeft = LeftOptPerm->getCost(d, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
 
     permutation * RightOptPerm = getOptimalPermutation(OrderedElements, index - 1, d, MyCache, ElementsLeftNo, ElementsRightNo + 1);
     RightOptPerm->AddToEnd(e);
-    double RightOffset;
-    double CostRight = RightOptPerm->getCost(d, &RightOffset, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
+    double CostRight = RightOptPerm->getCost(d, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
 
-    CostLeft = (CostLeft +  (ElementsLeftNo * LeftOffset) + ElementsRightNo * fabs(MyCache->RunningSums[index] - LeftOffset));
-    CostRight = (CostRight + (ElementsLeftNo * RightOffset) + ElementsRightNo * fabs(MyCache->RunningSums[index]- RightOffset));
-    
     if (CostLeft < CostRight) { 
         OptimalPerm = LeftOptPerm; 
         delete(RightOptPerm);
     }
-    else  {
+    else {
         OptimalPerm = RightOptPerm; 
         delete(LeftOptPerm);
     }
-
-    cout << "e:" << to_string(e->getValue()) << " d: " << to_string(d) << " left: " << to_string(CostLeft) << " right: " << to_string(CostRight) << " total cost: " << to_string(min(CostLeft, CostRight)) << " curr perm: ";
-    OptimalPerm->print();
-    cout << "left offset: " << to_string(LeftOffset) << " right offset: " << to_string(RightOffset) << endl;
     (*(MyCache->PermMap[index]))[Optd] = new permutation(OptimalPerm);
-    // cout << "adding permutation, index: " << to_string(index) << " d: " << to_string(d) << "Optd " << to_string(Optd) << endl;
-    // MyCache->printMap();
     return OptimalPerm;
 }
 
@@ -112,14 +101,14 @@ permutation * getOptimalPermutation(double * p, size_t size, double d) {
         permutation * DgeSumPj = new permutation(MyCache->DgeSumPj);
         delete(MyCache);
         return DgeSumPj;
-    }    
+    }
     permutation * OptimalPerm = new permutation(getOptimalPermutation(SortedElementVector, SortedElementVector.size() - 1, d, MyCache, 0, 0));
     delete(MyCache);
     return OptimalPerm;
 }
 
 int main() {
-    size_t mode = RANDOM_TESTS;
+    size_t mode = SPECIFIC_TEST;
     if (mode == RANDOM_TESTS) {
         random_device rd;
         mt19937 re(rd());
