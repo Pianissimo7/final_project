@@ -25,7 +25,7 @@ list<element *>::iterator permutation::getEnd() {
     return this->perm.end();
 }
 void permutation::print() {
-    cout<<this<<endl;
+    cout<<*this<<endl;
 }
 ostream& operator<<(ostream& os,  permutation& p){
     if (p.getSize() > 0 ) {
