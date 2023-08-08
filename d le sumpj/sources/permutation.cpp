@@ -25,18 +25,22 @@ list<element *>::iterator permutation::getEnd() {
     return this->perm.end();
 }
 void permutation::print() {
-    if (this->getSize() > 0 ) {
-        for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {
-            cout << to_string((*it)->getValue()) << ", ";
+    cout<<this<<endl;
+}
+ostream& operator<<(ostream& os,  permutation& p){
+    if (p.getSize() > 0 ) {
+        for (list<element *>::iterator it = p.perm.begin(); it != p.perm.end(); ++it) {
+            os << to_string((*it)->getValue()) << ", ";
         }     
     }
     else {
-        cout << "Empty Permutation";
+        os << "Empty Permutation";
     }
-    cout << endl;
+    return os;
+    
 }
 
-double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
+double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo){
     double MinCost = numeric_limits<double>::max();;
     double offset = 0;
     
@@ -58,7 +62,7 @@ double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, s
     }
     return MinCost;
 }
-double permutation::getNaiveCost(double d) {
+double permutation::getNaiveCost(double d){
     double Cost = 0;
     double RunningSum = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end(); ++it) {

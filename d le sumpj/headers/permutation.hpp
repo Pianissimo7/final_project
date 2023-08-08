@@ -21,9 +21,11 @@ class permutation {
         void AddToEnd(element * e);
         list<element *>::iterator getStart();
         list<element *>::iterator getEnd();
-        double getCost(double d, double RunningSum=0, size_t ElementLeftNo=0, size_t ElementRightNo=0);
-        double getNaiveCost(double d);
+        double getCost(double d, double RunningSum=0, size_t ElementLeftNo=0, size_t ElementRightNo=0) ;
+        double getNaiveCost(double d) ;
         void print();
+        friend ostream& operator<<(ostream& os, permutation& perm);
+
         void clear();
     private:
         list<element *> perm;
