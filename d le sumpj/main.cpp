@@ -19,7 +19,8 @@ const size_t MIN_P = 1;
 const size_t MAX_P = 50;
 const size_t MAX_OVERHEAD_D = 50;
 const size_t RANDOM_TESTS = 0;
-const size_t SPECIFIC_TEST = 1;
+const size_t PREMADE_TESTS = 1;
+const size_t SPECIFIC_TEST = 2;
 
 const string SOLUTIONS_FILE_NAME = "bruteforcesolutions.csv";
 const char DELIMITER = ',';
@@ -213,8 +214,7 @@ void TestDynamicPrograming() {
     cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    TestDynamicPrograming();
-    size_t mode = 3;
+    size_t mode = PREMADE_TESTS;
     if (mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
         if (!file.is_open()) {
@@ -275,6 +275,9 @@ int main() {
         }
         file.close();
     }
+    else if (mode == PREMADE_TESTS) {
+        TestDynamicPrograming();
+    }
     else if (mode == SPECIFIC_TEST) {        
         // example where the number of left elements is greated than the number of right elements
         // double p[] = { 39.702425, 13.911250, 10.728948, 46.716133, 4.668681, 13.453588, 47.603802};
@@ -282,14 +285,17 @@ int main() {
         // double p[] = {35, 10, 3, 14, 20, 40};
         // double d = 19;
         
-        double p[] = {24.225068, 37.990771, 23.265589, 24.427745, 15.179924, 47.028345, 20.448316, 40.782033};
-        double d = 127.066072;
+        // double p[] = {24.225068, 37.990771, 23.265589, 24.427745, 15.179924, 47.028345, 20.448316, 40.782033};
+        // double d = 127.066072;
         // got to make sure this does not fail
         // double p[] = {24.998633, 41.827879, 44.255552, 3.507722, 29.047814, 33.343240, 23.415793};
         // double d = 79.095620;
         // double p[] = { 20, 4,  3, 21, 7,  17};
         // double d = 15;
         
+        double p[] = {47.429674,30.187191,17.492503,2.548608,1.987622,4.705034,17.802244,39.968598};
+        double d = 141.041969;
+
         size_t size = sizeof(p)/sizeof(p[0]);
         
 
