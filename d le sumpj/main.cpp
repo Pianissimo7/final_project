@@ -8,6 +8,8 @@
 #include <memory>
 #include <algorithm>
 #include <random>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -18,6 +20,13 @@ const size_t MAX_P = 50;
 const size_t MAX_OVERHEAD_D = 50;
 const size_t RANDOM_TESTS = 0;
 const size_t SPECIFIC_TEST = 1;
+
+const string SOLUTIONS_FILE_NAME = "bruteforcesolutions.csv";
+const char DELIMITER = ',';
+const string EMPTY_CHARACTER = "N/A";
+const double EPSILON = 0.0001;
+
+
 
 size_t rec_counter = 0;
 
@@ -107,9 +116,111 @@ permutation * getOptimalPermutation(double * p, size_t size, double d) {
     return OptimalPerm;
 }
 
+void PrepareOutputFile(ofstream& file) {
+    file << "Cycle" << DELIMITER;
+    file << "Cost" << DELIMITER;
+    file << "deadline" << DELIMITER;
+    for (size_t i = 1 ; i <= MAX_SAMPLES ; i++) {
+        file << "Element: " << i << DELIMITER;
+    }
+    file << "\n";
+}
+void WriteOutputToFile(ofstream& file, int cycle_number, const vector<double> &perm, double d, double cost) {
+    file << to_string(cycle_number) << DELIMITER;
+    file << to_string(cost) << DELIMITER;
+    file << to_string(d) << DELIMITER;
+    for (size_t i = 0 ; i < MAX_SAMPLES ; i++) {
+        if (perm.size() > i) {
+            file << to_string(perm[i]) << DELIMITER;
+
+        }
+        else {
+            file << EMPTY_CHARACTER << DELIMITER;
+        }
+    }
+    file << "\n";
+}
+void TestDynamicPrograming() {
+    ifstream inputFile(SOLUTIONS_FILE_NAME); // Replace "data.csv" with your CSV file name
+    if (!inputFile.is_open()) {
+        cerr << "Could not open the file." << endl;
+        return;
+    }
+    string line;
+    if (!getline(inputFile, line)) {
+        cerr << "file is empty." << endl;
+    }
+    while (getline(inputFile, line)) {
+        istringstream iss(line);
+        
+        int index;
+        double cost, deadline;
+        size_t size = 0;
+        vector<double> ProcessingTimesVector;
+        
+        string temp;
+        getline(iss, temp, ',');
+        index = stoi(temp);
+
+        getline(iss, temp, ',');
+        cost = stod(temp);
+
+        getline(iss, temp, ',');
+        deadline = stod(temp);
+
+        while (std::getline(iss, temp, ',')) {
+            if (temp == EMPTY_CHARACTER || temp == "") {
+                break;
+            }
+            ProcessingTimesVector.push_back(std::stod(temp));
+            size++;
+        }
+        
+        double * p = (double *)malloc(sizeof(double) * ProcessingTimesVector.size());
+        
+        for (size_t i = 0 ; i < ProcessingTimesVector.size() ; i++) {
+            p[i] = ProcessingTimesVector[i];
+        }
+
+        permutation * OptimalPerm = getOptimalPermutation(p, size, deadline);
+        
+        double DynamicCost = OptimalPerm->getCost(deadline);
+        
+        // cout << "size: " << to_string(size) << endl;
+        // std::cout << "Int value: " << index << std::endl;
+        // std::cout << "Double value 1: " << cost << std::endl;
+        // std::cout << "Double value 2: " << deadline << std::endl;
+        // std::cout << "Double array: ";
+
+        // for (double val : ProcessingTimesVector) {
+        //     std::cout << val << " ";
+        // }
+        // std::cout << std::endl;
+
+
+        if (fabs(DynamicCost - cost) > EPSILON) {
+            cerr << "failed on number: " << to_string(index) << endl;
+            cerr << "DynamicCost: " << to_string(DynamicCost) << endl;
+            cerr << "RealCost: " << to_string(cost) << endl;
+
+            cerr << "the dynamic programing solution: ";
+            OptimalPerm->print();
+            return;
+        }
+
+        std::free(p);
+    }
+    cout << "SUCCESSFULLY PASSED ALL TESTS";
+}
 int main() {
-    size_t mode = SPECIFIC_TEST;
+    TestDynamicPrograming();
+    size_t mode = 3;
     if (mode == RANDOM_TESTS) {
+        ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
+        if (!file.is_open()) {
+            return 1;
+        }
+        PrepareOutputFile(file);
         random_device rd;
         mt19937 re(rd());
         for (size_t j = 0 ; j < 1000 ; j++) {
@@ -127,38 +238,42 @@ int main() {
             uniform_real_distribution<double> dUnif((size_t)ceil(sum) + MAX_OVERHEAD_D + 1);
             d = dUnif(re);
             
-            permutation * OptimalPerm = getOptimalPermutation(p, size, d);
-            cout << "tasks: " << endl;
-            for (size_t i = 0 ; i < size ; i++) {
-                cout << to_string(p[i]) << ", ";
-            }
-            cout << endl;
-            cout << "d: " << to_string(d) << endl;
+            // permutation * OptimalPerm = getOptimalPermutation(p, size, d);
+            // std::cout << "tasks: " << endl;
+            // for (size_t i = 0 ; i < size ; i++) {
+            //     std::cout << to_string(p[i]) << ", ";
+            // }
+            // std::cout << endl;
+            // std::cout << "d: " << to_string(d) << endl;
 
-            cout << "dynamic: " << endl;
-            OptimalPerm->print();
-            double DynamicCost = OptimalPerm->getCost(d);
-            cout << "dynamic cost: " << DynamicCost << endl;
+            // std::cout << "dynamic: " << endl;
+            // OptimalPerm->print();
+            // double DynamicCost = OptimalPerm->getCost(d);
+            // std::cout << "dynamic cost: " << DynamicCost << endl;
             
             bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
             vector<double> opt = bfs->getSolution();
             
-            cout << "brute force: " << endl;
+            std::cout << "brute force: " << endl;
             for (size_t i = 0 ; i < size ; i++) {
-                cout << to_string(opt[i]) + ", ";
+                std::cout << to_string(opt[i]) + ", ";
             }
-            cout << endl;
+            std::cout << endl;
             double BruteForceCost = bfs->CalculateMinCost(opt);
-            cout << "Brute cost: " << BruteForceCost << endl;
+            std::cout << "Brute cost: " << BruteForceCost << endl;
+
+            WriteOutputToFile(file, j, opt, d, BruteForceCost);
+
             delete(bfs);
-            free(p);
-            double diff = fabs(BruteForceCost - DynamicCost);
-            double epsilon = 0.00001;
-            if (diff > epsilon) {
-                cout << "FAILED" << endl;
-                return 0;
-            } 
+            std::free(p);
+            // double diff = fabs(BruteForceCost - DynamicCost);
+            // double epsilon = 0.00001;
+            // if (diff > epsilon) {
+            //     std::cout << "FAILED" << endl;
+            //     return 0;
+            // } 
         }
+        file.close();
     }
     else if (mode == SPECIFIC_TEST) {        
         // example where the number of left elements is greated than the number of right elements
@@ -179,33 +294,33 @@ int main() {
         
 
         permutation * OptimalPerm = getOptimalPermutation(p, size, d);
-        cout << "tasks: " << endl;
+        std::cout << "tasks: " << endl;
         for (size_t i = 0 ; i < size ; i++) {
-            cout << to_string(p[i]) << ", ";
+            std::cout << to_string(p[i]) << ", ";
         }
-        cout << endl;
-        cout << "d: " << to_string(d) << endl;
+        std::cout << endl;
+        std::cout << "d: " << to_string(d) << endl;
 
-        cout << "dynamic: " << endl;
+        std::cout << "dynamic: " << endl;
         OptimalPerm->print();
         double DynamicCost = OptimalPerm->getCost(d);
-        cout << "dynamic cost: " << DynamicCost << endl;
+        std::cout << "dynamic cost: " << DynamicCost << endl;
         
         bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
         vector<double> opt = bfs->getSolution();
         
-        cout << "brute force: " << endl;
+        std::cout << "brute force: " << endl;
         for (size_t i = 0 ; i < size ; i++) {
-            cout << to_string(opt[i]) + ", ";
+            std::cout << to_string(opt[i]) + ", ";
         }
-        cout << endl;
+        std::cout << endl;
         double BruteForceCost = bfs->CalculateMinCost(opt);
-        cout << "Brute cost: " << BruteForceCost << endl;
+        std::cout << "Brute cost: " << BruteForceCost << endl;
         delete(bfs);
         double diff = fabs(BruteForceCost - DynamicCost);
         double epsilon = 0.00001;
         if (diff > epsilon) {
-            cout << "FAILED" << endl;
+            std::cout << "FAILED" << endl;
             return 0;
         } 
     }
