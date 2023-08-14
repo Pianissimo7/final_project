@@ -293,8 +293,8 @@ int main() {
         // double p[] = { 20, 4,  3, 21, 7,  17};
         // double d = 15;
         
-        double p[] = {5, 4, 3, 3, 3, 3, 3};
-        double d = 8;
+        double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 3};
+        double d = 10;
 
         size_t size = sizeof(p)/sizeof(p[0]);
         

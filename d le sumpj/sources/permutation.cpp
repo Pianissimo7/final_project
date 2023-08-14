@@ -70,7 +70,7 @@ double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, s
     size_t DuplicateCount = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
         
-        if (offset - (LastElement * (DuplicateCount / 2)) + (*it)->getValue() >= d) { 
+        if (offset + (*it)->getValue() >= d) { 
             offset -= LastElement * (DuplicateCount / 2);
             break;
         }
