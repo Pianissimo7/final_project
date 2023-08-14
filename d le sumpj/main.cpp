@@ -214,7 +214,7 @@ void TestDynamicPrograming() {
     cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    size_t mode = PREMADE_TESTS;
+    size_t mode = SPECIFIC_TEST;
     if (mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
         if (!file.is_open()) {
@@ -293,8 +293,8 @@ int main() {
         // double p[] = { 20, 4,  3, 21, 7,  17};
         // double d = 15;
         
-        double p[] = {47.429674,30.187191,17.492503,2.548608,1.987622,4.705034,17.802244,39.968598};
-        double d = 141.041969;
+        double p[] = {5, 4, 3, 3, 3, 3, 3};
+        double d = 8;
 
         size_t size = sizeof(p)/sizeof(p[0]);
         

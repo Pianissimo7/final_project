@@ -67,12 +67,15 @@ double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, s
     double offset = 0;
     
     double LastElement = numeric_limits<double>::max();
+    size_t DuplicateCount = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
         
-        if (offset + (*it)->getValue() >= d) { 
+        if (offset - (LastElement * (DuplicateCount / 2)) + (*it)->getValue() >= d) { 
+            offset -= LastElement * (DuplicateCount / 2);
             break;
         }
         if ((*it)->getValue() > LastElement) {
+            offset -= LastElement * (DuplicateCount / 2);
             if (ElementLeftNo >= ElementRightNo) {
                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
             }
@@ -80,6 +83,12 @@ double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, s
                 offset -= LastElement;
                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
             }
+        }
+        if ((*it)->getValue() < LastElement) {
+            DuplicateCount = 0;
+        }
+        else {
+            DuplicateCount++;
         }
         offset += (*it)->getValue();
         LastElement = (*it)->getValue();
