@@ -52,10 +52,7 @@ vector<element *> MakeSortedElementArray(double * p, size_t size) {
 permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t index, double d, cache * MyCache, size_t ElementsLeftNo, size_t ElementsRightNo) {
     double Optd = min(max(d, 0.0), MyCache->RunningSums[index]);
     if ((index > 0) && MyCache->PermMap[index]->find(Optd) != MyCache->PermMap[index]->end()) {
-        // cout << "e: " << to_string(OrderedElements[index]->getValue()) << " d: " << to_string(d) << "found permutation in map: ";
-        // (*(MyCache->PermMap[index]))[Optd]->print();
         return new permutation((*(MyCache->PermMap[index]))[Optd]);
-        
     }
     
     rec_counter++;
@@ -142,7 +139,7 @@ void WriteOutputToFile(ofstream& file, int cycle_number, const vector<double> &p
     file << "\n";
 }
 void TestDynamicPrograming() {
-    ifstream inputFile(SOLUTIONS_FILE_NAME); // Replace "data.csv" with your CSV file name
+    ifstream inputFile(SOLUTIONS_FILE_NAME);
     if (!inputFile.is_open()) {
         cerr << "Could not open the file." << endl;
         return;
@@ -186,18 +183,6 @@ void TestDynamicPrograming() {
         permutation * OptimalPerm = getOptimalPermutation(p, size, deadline);
         
         double DynamicCost = OptimalPerm->getCost(deadline);
-        
-        // cout << "size: " << to_string(size) << endl;
-        // std::cout << "Int value: " << index << std::endl;
-        // std::cout << "Double value 1: " << cost << std::endl;
-        // std::cout << "Double value 2: " << deadline << std::endl;
-        // std::cout << "Double array: ";
-
-        // for (double val : ProcessingTimesVector) {
-        //     std::cout << val << " ";
-        // }
-        // std::cout << std::endl;
-
 
         if (fabs(DynamicCost - cost) > EPSILON) {
             cerr << "failed on number: " << to_string(index) << endl;
@@ -293,10 +278,10 @@ int main() {
         // double p[] = { 20, 4,  3, 21, 7,  17};
         // double d = 15;
         
-        // double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 3};
-        // double d = 18;
-        double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 1};
-        double d = 14;
+        double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 3,1};
+        double d = 16;
+        // double p[] = {1, 2, 3, 4, 5};
+        // double d = 6;
 
         size_t size = sizeof(p)/sizeof(p[0]);
         

@@ -28,6 +28,7 @@ class permutation {
 
         void clear();
     private:
+        element * pivot;
         list<element *> perm;
         double sum;
 };

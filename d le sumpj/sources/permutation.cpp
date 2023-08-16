@@ -1,10 +1,12 @@
 #include "../headers/permutation.hpp"
 permutation::permutation() {
+    this->pivot = nullptr;
 }
 permutation::permutation(permutation * other) {
     for (list<element *>::iterator it = other->getStart(); it != other->getEnd(); ++it) {
         this->perm.push_back(*it);
     }
+    this->pivot = other->pivot;
 }
 permutation::~permutation() {
 
@@ -13,9 +15,15 @@ size_t permutation::getSize() {
     return this->perm.size();
 }
 void permutation::AddToStart(element * e) {
+    if (this->getSize() == 0) {
+        this->pivot = e;
+    }
     this->perm.push_front(e);
 }
 void permutation::AddToEnd(element * e) {
+    if (this->getSize() == 0) {
+        this->pivot = e;
+    }
     this->perm.push_back(e);
 }
 list<element *>::iterator permutation::getStart() {
@@ -63,38 +71,60 @@ ostream& operator<<(ostream& os,  permutation& p){
 //     return MinCost;
 // }
 
+// double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
+//     double offset = 0;
+    
+//     double LastElement = numeric_limits<double>::max();
+//     size_t DuplicateCount = 0;
+//     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
+        
+//         if (offset - (LastElement * (DuplicateCount / 2)) + (*it)->getValue() >= d) { 
+//             offset -= LastElement * ((DuplicateCount / 2));
+//             break;
+//         }
+//         else if (offset + (*it)->getValue() >= d && (LastElement != (*it)->getValue())) {
+//             break;
+//         }
+//         if ((*it)->getValue() > LastElement) {
+//             offset -= LastElement * (DuplicateCount / 2);
+//             if (ElementLeftNo >= ElementRightNo) {
+//                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
+//             }
+//             else {
+//                 offset -= LastElement;
+//                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
+//             }
+//         }
+//         if ((*it)->getValue() < LastElement) {
+//             DuplicateCount = 0;
+//         }
+//         else {
+//             DuplicateCount++;
+//         }
+//         offset += (*it)->getValue();
+//         LastElement = (*it)->getValue();
+//     }
+
 double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
+    if (this->getSize() == 0) {
+        return 0;
+    }
     double offset = 0;
     
-    double LastElement = numeric_limits<double>::max();
-    size_t DuplicateCount = 0;
     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
         
-        if (offset - (LastElement * (DuplicateCount / 2)) + (*it)->getValue() >= d) { 
-            offset -= LastElement * ((DuplicateCount / 2));
+        if (offset + (*it)->getValue() >= d) {
             break;
         }
-        else if (offset + (*it)->getValue() >= d && (LastElement != (*it)->getValue())) {
-            break;
-        } 
-        if ((*it)->getValue() > LastElement) {
-            offset -= LastElement * (DuplicateCount / 2);
-            if (ElementLeftNo >= ElementRightNo) {
-                return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
-            }
-            else {
-                offset -= LastElement;
-                return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
-            }
-        }
-        if ((*it)->getValue() < LastElement) {
-            DuplicateCount = 0;
-        }
-        else {
-            DuplicateCount++;
+        if (*it == this->pivot) {
+            double CostPivotEarly = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
+            offset += (*it)->getValue();    
+            double CostPivotTardy = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
+            
+            double CostForD = getNaiveCost(d) + ElementLeftNo * d + ElementRightNo * fabs(RunningSum - d);
+            return min(CostForD, min(CostPivotEarly, CostPivotTardy));
         }
         offset += (*it)->getValue();
-        LastElement = (*it)->getValue();
     }
     
     double CostForOffset = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
