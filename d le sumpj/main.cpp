@@ -199,7 +199,7 @@ void TestDynamicPrograming() {
     cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    size_t mode = SPECIFIC_TEST;
+    size_t mode = PREMADE_TESTS;
     if (mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
         if (!file.is_open()) {
@@ -265,8 +265,8 @@ int main() {
     }
     else if (mode == SPECIFIC_TEST) {        
         // example where the number of left elements is greated than the number of right elements
-        // double p[] = { 39.702425, 13.911250, 10.728948, 46.716133, 4.668681, 13.453588, 47.603802};
-        // double d = 87.220406;
+        double p[] = { 39.702425, 13.911250, 10.728948, 46.716133, 4.668681, 13.453588, 47.603802};
+        double d = 87.220406;
         // double p[] = {35, 10, 3, 14, 20, 40};
         // double d = 19;
         
@@ -278,8 +278,8 @@ int main() {
         // double p[] = { 20, 4,  3, 21, 7,  17};
         // double d = 15;
         
-        double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 3,1};
-        double d = 16;
+        // double p[] = {5, 4, 3, 3, 3, 3, 3, 3, 3,1};
+        // double d = 16;
         // double p[] = {1, 2, 3, 4, 5};
         // double d = 6;
 

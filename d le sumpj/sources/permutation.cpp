@@ -127,11 +127,9 @@ double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, s
         offset += (*it)->getValue();
     }
     
-    double CostForOffset = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
     double CostForD = getNaiveCost(d) + ElementLeftNo * d + ElementRightNo * fabs(RunningSum - d);
     
-    return min(CostForOffset, CostForD);
-    
+    return CostForD;
 }
 double permutation::getNaiveCost(double d){
     double Cost = 0;
