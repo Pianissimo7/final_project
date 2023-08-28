@@ -30,6 +30,7 @@ const double EPSILON = 0.0001;
 
 
 size_t rec_counter = 0;
+size_t dynamic_usage_counter = 0;
 
 vector<element *> MakeSortedElementArray(double * p, size_t size) {
     
@@ -50,30 +51,33 @@ vector<element *> MakeSortedElementArray(double * p, size_t size) {
 }
 
 permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t index, double d, cache * MyCache, size_t ElementsLeftNo, size_t ElementsRightNo) {
+    
+    
     double Optd = min(max(d, 0.0), MyCache->RunningSums[index]);
-    if ((index > 0) && MyCache->PermMap[index]->find(Optd) != MyCache->PermMap[index]->end()) {
-        return new permutation((*(MyCache->PermMap[index]))[Optd]);
-    }
-    
-    rec_counter++;
-    
     permutation * OptimalPerm;
     element * e = OrderedElements[index];
 
-    if (Optd == 0.0) {
-        OptimalPerm = new permutation();
-        for (size_t i = 0 ; i <= index ; i++) {
-            OptimalPerm->AddToEnd(OrderedElements[i]);
-            ElementsRightNo++;
-        }
-        return OptimalPerm;
-    }    
+    // if (Optd == 0.0) {
+    //     OptimalPerm = new permutation();
+    //     for (size_t i = 0 ; i <= index ; i++) {
+    //         OptimalPerm->AddToEnd(OrderedElements[i]);
+    //     }
+    //     return OptimalPerm;
+    // }    
     if (index == 0) {
         OptimalPerm = new permutation();
         OptimalPerm->AddToStart(e);
         return OptimalPerm;
     }
-    
+    if (MyCache->PermMap[index]->find(Optd) != MyCache->PermMap[index]->end()) {
+        // cout << "NL: " << to_string(ElementsLeftNo) << endl;
+        // cout << "perm: " << *(*(MyCache->PermMap[index]))[Optd] << endl;
+        // cout << "d: " << to_string(Optd) << endl;
+        dynamic_usage_counter++;
+        rec_counter++;
+        return new permutation((*(MyCache->PermMap[index]))[Optd]);
+    }
+    rec_counter++;
     permutation * LeftOptPerm = getOptimalPermutation(OrderedElements, index - 1, d - e->getValue(), MyCache, ElementsLeftNo + 1, ElementsRightNo);
     LeftOptPerm->AddToStart(e);
     double CostLeft = LeftOptPerm->getCost(d, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
@@ -180,17 +184,26 @@ void TestDynamicPrograming() {
             p[i] = ProcessingTimesVector[i];
         }
 
+        rec_counter = 0;
+        dynamic_usage_counter = 0;
         permutation * OptimalPerm = getOptimalPermutation(p, size, deadline);
         
         double DynamicCost = OptimalPerm->getCost(deadline);
 
-        if (fabs(DynamicCost - cost) > EPSILON) {
+        bool rec_fail = rec_counter >  2 * size * ceil(deadline);
+
+        if (fabs(DynamicCost - cost) > EPSILON || rec_fail) {
             cerr << "failed on number: " << to_string(index) << endl;
             cerr << "DynamicCost: " << to_string(DynamicCost) << endl;
             cerr << "RealCost: " << to_string(cost) << endl;
 
             cerr << "the dynamic programing solution: ";
             OptimalPerm->print();
+            cerr << "d: " << to_string(deadline) << endl;
+            cerr << "dynamic usage: " << to_string(dynamic_usage_counter) << endl;
+            if (rec_fail) {
+                cerr << "rec_counter: " << to_string(rec_counter) << "/" << to_string(2 * size * ceil(deadline)) << endl;
+            }
             return;
         }
 
@@ -199,7 +212,7 @@ void TestDynamicPrograming() {
     cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    size_t mode = PREMADE_TESTS;
+    size_t mode = SPECIFIC_TEST;
     if (mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
         if (!file.is_open()) {
@@ -265,8 +278,8 @@ int main() {
     }
     else if (mode == SPECIFIC_TEST) {        
         // example where the number of left elements is greated than the number of right elements
-        double p[] = { 39.702425, 13.911250, 10.728948, 46.716133, 4.668681, 13.453588, 47.603802};
-        double d = 87.220406;
+        // double p[] = { 39.702425, 13.911250, 10.728948, 46.716133, 4.668681, 13.453588, 47.603802};
+        // double d = 87.220406;
         // double p[] = {35, 10, 3, 14, 20, 40};
         // double d = 19;
         
@@ -282,40 +295,54 @@ int main() {
         // double d = 16;
         // double p[] = {1, 2, 3, 4, 5};
         // double d = 6;
-
-        size_t size = sizeof(p)/sizeof(p[0]);
         
+        // 2 
+        // double p[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+        // double d = 10922;
+        // double p[] = {1, 4, 27, 256, 3125, 46656, 823543, 16777216};
+        // double d = 0.5;
+        // extra long permutation of prime numbers
+        double p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541};
+        size_t size = sizeof(p)/sizeof(p[0]);
+        double sum = 0;
+        for (size_t i = 0 ; i < size ; i++) {
+            sum += p[i];
+        }
+        double d = sum / 3;
+
+        
+        // size_t size = sizeof(p)/sizeof(p[0]);
 
         permutation * OptimalPerm = getOptimalPermutation(p, size, d);
-        std::cout << "tasks: " << endl;
+        cout << "tasks: " << endl;
         for (size_t i = 0 ; i < size ; i++) {
-            std::cout << to_string(p[i]) << ", ";
+            cout << to_string(p[i]) << ", ";
         }
-        std::cout << endl;
-        std::cout << "d: " << to_string(d) << endl;
+        cout << endl;
+        cout << "d: " << to_string(d) << endl;
 
-        std::cout << "dynamic: " << endl;
+        cout << "dynamic: " << endl;
         OptimalPerm->print();
         double DynamicCost = OptimalPerm->getCost(d);
-        std::cout << "dynamic cost: " << DynamicCost << endl;
+        cout << "dynamic cost: " << DynamicCost << endl;
+        cout << "dynamic usage: " << to_string(dynamic_usage_counter) << endl;
+        cout << "rec_counter: " << to_string(rec_counter) << "/" << to_string(2 * size * ceil(d)) << endl;
+        // bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
+        // vector<double> opt = bfs->getSolution();
         
-        bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
-        vector<double> opt = bfs->getSolution();
-        
-        std::cout << "brute force: " << endl;
-        for (size_t i = 0 ; i < size ; i++) {
-            std::cout << to_string(opt[i]) + ", ";
-        }
-        std::cout << endl;
-        double BruteForceCost = bfs->CalculateMinCost(opt);
-        std::cout << "Brute cost: " << BruteForceCost << endl;
-        delete(bfs);
-        double diff = fabs(BruteForceCost - DynamicCost);
-        double epsilon = 0.00001;
-        if (diff > epsilon) {
-            std::cout << "FAILED" << endl;
-            return 0;
-        } 
+        // cout << "brute force: " << endl;
+        // for (size_t i = 0 ; i < size ; i++) {
+        //     cout << to_string(opt[i]) + ", ";
+        // }
+        // cout << endl;
+        // double BruteForceCost = bfs->CalculateMinCost(opt);
+        // cout << "Brute cost: " << BruteForceCost << endl;
+        // delete(bfs);
+        // double diff = fabs(BruteForceCost - DynamicCost);
+        // if (diff > EPSILON) {
+        //     cout << "FAILED" << endl;
+        //     return 1;
+        // } 
     }
     return 0;
 }
