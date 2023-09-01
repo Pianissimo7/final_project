@@ -27,8 +27,6 @@ const char DELIMITER = ',';
 const string EMPTY_CHARACTER = "N/A";
 const double EPSILON = 0.0001;
 
-
-
 size_t rec_counter = 0;
 size_t dynamic_usage_counter = 0;
 
@@ -50,20 +48,18 @@ vector<element *> MakeSortedElementArray(double * p, size_t size) {
     return *ElementVector;
 }
 
+double RoundToEpsilon(double number) {
+    size_t accuracy = (size_t)floor(1/EPSILON);
+    return round(number * accuracy) / accuracy;
+}
+
 permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t index, double d, cache * MyCache, size_t ElementsLeftNo, size_t ElementsRightNo) {
     
     
-    double Optd = min(max(d, 0.0), MyCache->RunningSums[index]);
+    double Optd = RoundToEpsilon(min(max(d, 0.0), MyCache->RunningSums[index]));
     permutation * OptimalPerm;
     element * e = OrderedElements[index];
 
-    // if (Optd == 0.0) {
-    //     OptimalPerm = new permutation();
-    //     for (size_t i = 0 ; i <= index ; i++) {
-    //         OptimalPerm->AddToEnd(OrderedElements[i]);
-    //     }
-    //     return OptimalPerm;
-    // }    
     if (index == 0) {
         OptimalPerm = new permutation();
         OptimalPerm->AddToStart(e);
@@ -212,7 +208,7 @@ void TestDynamicPrograming() {
     cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    size_t mode = SPECIFIC_TEST;
+    size_t mode = PREMADE_TESTS;
     if (mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
         if (!file.is_open()) {
