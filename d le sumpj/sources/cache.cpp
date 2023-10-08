@@ -4,7 +4,6 @@ using namespace std;
 
 cache::cache(vector<element *> OrderedElements) {
     this->size = OrderedElements.size();
-    this->DgeSumPj = this->getDgeSumPj(OrderedElements);
     this->PermMap = (unordered_map<double, permutation *> **) malloc(sizeof(unordered_map<double, permutation *> **) * this->size);
     for (size_t i = 0 ; i < this->size ; i++) { 
         this->PermMap[i] = new unordered_map<double, permutation *>();
@@ -20,7 +19,6 @@ cache::~cache() {
         this->PermMap[i]->clear();
     }
     free(this->PermMap);
-    delete(this->DgeSumPj);
     free(this->RunningSums);
 }
 permutation * cache::getDgeSumPj(vector<element *> OrderedElements) {

@@ -10,17 +10,20 @@
 #include <random>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+
+#define GENERATE_TESTS 0
+#define RANDOM_TESTS 1
+#define PREMADE_TESTS 2
+#define SPECIFIC_TEST 3
 
 using namespace std;
 
-const size_t MAX_SAMPLES = 10;
-const size_t MIN_SAMPLES = 6;
+const size_t MAX_SAMPLES = 9;
+const size_t MIN_SAMPLES = 5;
 const size_t MIN_P = 1;
-const size_t MAX_P = 50;
+const size_t MAX_P = 5000;
 const size_t MAX_OVERHEAD_D = 50;
-const size_t RANDOM_TESTS = 0;
-const size_t PREMADE_TESTS = 1;
-const size_t SPECIFIC_TEST = 2;
 
 const string SOLUTIONS_FILE_NAME = "bruteforcesolutions.csv";
 const char DELIMITER = ',';
@@ -55,8 +58,8 @@ double RoundToEpsilon(double number) {
 
 permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t index, double d, cache * MyCache, size_t ElementsLeftNo, size_t ElementsRightNo) {
     
-    
-    double Optd = RoundToEpsilon(min(max(d, 0.0), MyCache->RunningSums[index]));
+    // double Optd = RoundToEpsilon(min(max(d, 0.0), MyCache->RunningSums[index]));
+    double Optd = RoundToEpsilon(max(d, 0.0));
     permutation * OptimalPerm;
     element * e = OrderedElements[index];
 
@@ -66,21 +69,18 @@ permutation * getOptimalPermutation(vector<element *> OrderedElements, size_t in
         return OptimalPerm;
     }
     if (MyCache->PermMap[index]->find(Optd) != MyCache->PermMap[index]->end()) {
-        // cout << "NL: " << to_string(ElementsLeftNo) << endl;
-        // cout << "perm: " << *(*(MyCache->PermMap[index]))[Optd] << endl;
-        // cout << "d: " << to_string(Optd) << endl;
         dynamic_usage_counter++;
         rec_counter++;
         return new permutation((*(MyCache->PermMap[index]))[Optd]);
     }
     rec_counter++;
-    permutation * LeftOptPerm = getOptimalPermutation(OrderedElements, index - 1, d - e->getValue(), MyCache, ElementsLeftNo + 1, ElementsRightNo);
+    permutation * LeftOptPerm = getOptimalPermutation(OrderedElements, index - 1, Optd - e->getValue(), MyCache, ElementsLeftNo + 1, ElementsRightNo);
     LeftOptPerm->AddToStart(e);
-    double CostLeft = LeftOptPerm->getCost(d, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
+    double CostLeft = LeftOptPerm->getCost(Optd, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
 
-    permutation * RightOptPerm = getOptimalPermutation(OrderedElements, index - 1, d, MyCache, ElementsLeftNo, ElementsRightNo + 1);
+    permutation * RightOptPerm = getOptimalPermutation(OrderedElements, index - 1, Optd, MyCache, ElementsLeftNo, ElementsRightNo + 1);
     RightOptPerm->AddToEnd(e);
-    double CostRight = RightOptPerm->getCost(d, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
+    double CostRight = RightOptPerm->getCost(Optd, MyCache->RunningSums[index], ElementsLeftNo, ElementsRightNo);
 
     if (CostLeft < CostRight) { 
         OptimalPerm = LeftOptPerm; 
@@ -99,16 +99,7 @@ permutation * getOptimalPermutation(double * p, size_t size, double d) {
     vector<element *> SortedElementVector = MakeSortedElementArray(p, size);
 
     cache * MyCache = new cache(SortedElementVector);
-    
-    double AlternatingLeftSideSum = 0.0;
-    for (size_t i = size - 1 ; (i + 1 > 0 && i + 2 > 0) ; i -= 2) {
-        AlternatingLeftSideSum += SortedElementVector[i]->getValue();
-    }
-    if (d >= AlternatingLeftSideSum) {
-        permutation * DgeSumPj = new permutation(MyCache->DgeSumPj);
-        delete(MyCache);
-        return DgeSumPj;
-    }
+
     permutation * OptimalPerm = new permutation(getOptimalPermutation(SortedElementVector, SortedElementVector.size() - 1, d, MyCache, 0, 0));
     delete(MyCache);
     return OptimalPerm;
@@ -122,6 +113,7 @@ void PrepareOutputFile(ofstream& file) {
         file << "Element: " << i << DELIMITER;
     }
     file << "\n";
+    file.flush();
 }
 void WriteOutputToFile(ofstream& file, int cycle_number, const vector<double> &perm, double d, double cost) {
     file << to_string(cycle_number) << DELIMITER;
@@ -137,6 +129,7 @@ void WriteOutputToFile(ofstream& file, int cycle_number, const vector<double> &p
         }
     }
     file << "\n";
+    file.flush();
 }
 void TestDynamicPrograming() {
     ifstream inputFile(SOLUTIONS_FILE_NAME);
@@ -205,19 +198,31 @@ void TestDynamicPrograming() {
 
         std::free(p);
     }
-    cout << "SUCCESSFULLY PASSED ALL TESTS";
+    std::cout << "SUCCESSFULLY PASSED ALL TESTS";
 }
 int main() {
-    size_t mode = PREMADE_TESTS;
-    if (mode == RANDOM_TESTS) {
+    size_t mode = GENERATE_TESTS;
+    if (mode == GENERATE_TESTS || mode == RANDOM_TESTS) {
         ofstream file(SOLUTIONS_FILE_NAME, ios::trunc);
-        if (!file.is_open()) {
-            return 1;
+        if (mode == GENERATE_TESTS) {
+            if (!file.is_open()) {
+                return 1;
+            }
+            PrepareOutputFile(file);
         }
-        PrepareOutputFile(file);
+        
         random_device rd;
         mt19937 re(rd());
-        for (size_t j = 0 ; j < 1000 ; j++) {
+
+        double AverageRunningTimeDP = 0;
+        double AverageRunningTimeBF = 0;
+        double WorstRunningTimeDP = 0;
+        double WorstRunningTimeBF = 0;
+        size_t TestAmount = 1000;
+
+        for (size_t j = 0 ; j < TestAmount ; j++) {
+            
+            // generate the test
             size_t size = MIN_SAMPLES + rand() % ((MAX_SAMPLES + 1) - MIN_SAMPLES);
             
             uniform_real_distribution<double> pUnif(MIN_P,MAX_P + 1);
@@ -229,25 +234,40 @@ int main() {
                 p[i] = pUnif(re);
                 sum += p[i];
             }
-            uniform_real_distribution<double> dUnif((size_t)ceil(sum) + MAX_OVERHEAD_D + 1);
+            // uniform_real_distribution<double> dUnif((size_t)ceil(sum) + MAX_OVERHEAD_D + 1);
+            uniform_real_distribution<double> dUnif((size_t)(ceil(sum)/3), (size_t)(ceil(sum)/2));
             d = dUnif(re);
             
-            // permutation * OptimalPerm = getOptimalPermutation(p, size, d);
-            // std::cout << "tasks: " << endl;
-            // for (size_t i = 0 ; i < size ; i++) {
-            //     std::cout << to_string(p[i]) << ", ";
-            // }
-            // std::cout << endl;
-            // std::cout << "d: " << to_string(d) << endl;
+            // run the dynamic programing algorithm on the test
+            
+            auto DPStart = std::chrono::high_resolution_clock::now();
+            
+            permutation * OptimalPerm = getOptimalPermutation(p, size, d);
 
-            // std::cout << "dynamic: " << endl;
-            // OptimalPerm->print();
-            // double DynamicCost = OptimalPerm->getCost(d);
-            // std::cout << "dynamic cost: " << DynamicCost << endl;
+            auto DPEnd = std::chrono::high_resolution_clock::now();
+            
+            // print dynamic programing solution
+            std::cout << "tasks: " << endl;
+            for (size_t i = 0 ; i < size ; i++) {
+                std::cout << to_string(p[i]) << ", ";
+            }
+            std::cout << endl;
+            std::cout << "d: " << to_string(d) << endl;
+
+            std::cout << "dynamic: " << endl;
+            OptimalPerm->print();
+            double DynamicCost = OptimalPerm->getCost(d);
+            std::cout << "dynamic cost: " << DynamicCost << endl;
+
+            // run the brute force algorithm on the test
+            auto BFStart = std::chrono::high_resolution_clock::now();
             
             bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
             vector<double> opt = bfs->getSolution();
             
+            auto BFEnd = std::chrono::high_resolution_clock::now();
+            
+            // print brute force solution
             std::cout << "brute force: " << endl;
             for (size_t i = 0 ; i < size ; i++) {
                 std::cout << to_string(opt[i]) + ", ";
@@ -256,18 +276,42 @@ int main() {
             double BruteForceCost = bfs->CalculateMinCost(opt);
             std::cout << "Brute cost: " << BruteForceCost << endl;
 
-            WriteOutputToFile(file, j, opt, d, BruteForceCost);
+            if (mode == GENERATE_TESTS) {
+                WriteOutputToFile(file, j, opt, d, BruteForceCost);
+            }
 
             delete(bfs);
             std::free(p);
-            // double diff = fabs(BruteForceCost - DynamicCost);
-            // double epsilon = 0.00001;
-            // if (diff > epsilon) {
-            //     std::cout << "FAILED" << endl;
-            //     return 0;
-            // } 
+            
+            // print the time it took each of the algorithms to finish computing
+            auto DPDuration = std::chrono::duration_cast<std::chrono::milliseconds>(DPEnd - DPStart);
+            auto BFDuration = std::chrono::duration_cast<std::chrono::milliseconds>(BFEnd - BFStart);
+            std::cout << "Dynamic programing duration: " << DPDuration.count() << endl;
+            std::cout << "brute force duration: " << BFDuration.count() << endl;
+            AverageRunningTimeDP += (double)DPDuration.count() / TestAmount;
+            AverageRunningTimeBF += (double)BFDuration.count() / TestAmount;
+            if (DPDuration.count() > WorstRunningTimeDP) {
+                WorstRunningTimeDP = DPDuration.count();
+            }
+            if (BFDuration.count() > WorstRunningTimeBF) {
+                WorstRunningTimeBF = BFDuration.count();
+            }
+            // compare the results of the DP algorithm with the brute force algorithm
+            double diff = fabs(BruteForceCost - DynamicCost);
+            if (diff > EPSILON) {
+                std::cout << "FAILED" << endl;
+                return 0;
+            } 
         }
-        file.close();
+        std::cout << "---------------STATS-------------" << endl;
+        std::cout << "Average running time for DP: " << AverageRunningTimeDP << endl;
+        std::cout << "Average running time for BF: " << AverageRunningTimeBF << endl;
+        std::cout << "Worst running time for DP: " << WorstRunningTimeDP << endl;
+        std::cout << "Worst running time for BF: " << WorstRunningTimeBF << endl;
+        std::cout << "---------------------------------" << endl;
+        if (mode == GENERATE_TESTS) {
+            file.close();
+        }
     }
     else if (mode == PREMADE_TESTS) {
         TestDynamicPrograming();
@@ -298,47 +342,52 @@ int main() {
         // double p[] = {1, 4, 27, 256, 3125, 46656, 823543, 16777216};
         // double d = 0.5;
         // extra long permutation of prime numbers
-        double p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541};
-        size_t size = sizeof(p)/sizeof(p[0]);
-        double sum = 0;
-        for (size_t i = 0 ; i < size ; i++) {
-            sum += p[i];
-        }
-        double d = sum / 3;
-
-        
+        // double p[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541};
         // size_t size = sizeof(p)/sizeof(p[0]);
+        // double sum = 0;
+        // for (size_t i = 0 ; i < size ; i++) {
+        //     sum += p[i];
+        // }
+        // double d = sum / 3;
+        // example for where the Brute Force finishes before the dynamic programming
+        // double p[] = {36.872481, 45.272827, 17.817891, 34.571412, 31.276184, 4.332805};
+        // double d = 52.218603;
+        
+        double p[] = {1, 3, 4, 7};
+        double d = 6;
+        
+        size_t size = sizeof(p)/sizeof(p[0]);
 
         permutation * OptimalPerm = getOptimalPermutation(p, size, d);
-        cout << "tasks: " << endl;
+        std::cout << "tasks: " << endl;
         for (size_t i = 0 ; i < size ; i++) {
-            cout << to_string(p[i]) << ", ";
+            std::cout << to_string(p[i]) << ", ";
         }
-        cout << endl;
-        cout << "d: " << to_string(d) << endl;
+        std::cout << endl;
+        std::cout << "d: " << to_string(d) << endl;
 
-        cout << "dynamic: " << endl;
+        std::cout << "dynamic: " << endl;
         OptimalPerm->print();
         double DynamicCost = OptimalPerm->getCost(d);
-        cout << "dynamic cost: " << DynamicCost << endl;
-        cout << "dynamic usage: " << to_string(dynamic_usage_counter) << endl;
-        cout << "rec_counter: " << to_string(rec_counter) << "/" << to_string(2 * size * ceil(d)) << endl;
-        // bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
-        // vector<double> opt = bfs->getSolution();
+        std::cout << "dynamic cost: " << DynamicCost << endl;
+        std::cout << "dynamic usage: " << to_string(dynamic_usage_counter) << endl;
+        std::cout << "rec_counter: " << to_string(rec_counter) << "/" << to_string(2 * size * ceil(d)) << endl;
+        bruteforcesolver *bfs = new bruteforcesolver(p, size, d);
+        vector<double> opt = bfs->getSolution();
         
-        // cout << "brute force: " << endl;
-        // for (size_t i = 0 ; i < size ; i++) {
-        //     cout << to_string(opt[i]) + ", ";
-        // }
-        // cout << endl;
-        // double BruteForceCost = bfs->CalculateMinCost(opt);
-        // cout << "Brute cost: " << BruteForceCost << endl;
-        // delete(bfs);
-        // double diff = fabs(BruteForceCost - DynamicCost);
-        // if (diff > EPSILON) {
-        //     cout << "FAILED" << endl;
-        //     return 1;
-        // } 
+        std::cout << "brute force: " << endl;
+        for (size_t i = 0 ; i < size ; i++) {
+            std::cout << to_string(opt[i]) + ", ";
+        }
+        std::cout << endl;
+        double BruteForceCost = bfs->CalculateMinCost(opt);
+        std::cout << "Brute cost: " << BruteForceCost << endl;
+        delete(bfs);
+        double diff = fabs(BruteForceCost - DynamicCost);
+        if (diff > EPSILON) {
+            std::cout << "FAILED" << endl;
+            return 1;
+        } 
     }
     return 0;
 }

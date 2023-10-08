@@ -7,7 +7,6 @@ class cache {
     public:
         cache(vector<element *> OrderedElements);
         ~cache();
-        permutation * DgeSumPj;
         unordered_map<double, permutation *> ** PermMap;
         double * RunningSums;
         void printMap();

@@ -48,63 +48,6 @@ ostream& operator<<(ostream& os,  permutation& p){
     
 }
 
-// double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo){
-//     double MinCost = numeric_limits<double>::max();;
-//     double offset = 0;
-    
-//     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
-//         double cost = getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
-//         if (MinCost > cost) {
-//             MinCost = cost;
-//         }
-//         if (offset + (*it)->getValue() >= d) { 
-//             break;
-//         }
-//         offset += (*it)->getValue();
-        
-//     }
-//     double DMinCost = getNaiveCost(d) + ElementLeftNo * d + ElementRightNo * fabs(RunningSum - d);
-    
-//     if (DMinCost <= MinCost) {
-//         MinCost = DMinCost;
-//     }
-//     return MinCost;
-// }
-
-// double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
-//     double offset = 0;
-    
-//     double LastElement = numeric_limits<double>::max();
-//     size_t DuplicateCount = 0;
-//     for (list<element *>::iterator it = this->perm.begin(); it != this->perm.end() ; ++it) {
-        
-//         if (offset - (LastElement * (DuplicateCount / 2)) + (*it)->getValue() >= d) { 
-//             offset -= LastElement * ((DuplicateCount / 2));
-//             break;
-//         }
-//         else if (offset + (*it)->getValue() >= d && (LastElement != (*it)->getValue())) {
-//             break;
-//         }
-//         if ((*it)->getValue() > LastElement) {
-//             offset -= LastElement * (DuplicateCount / 2);
-//             if (ElementLeftNo >= ElementRightNo) {
-//                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
-//             }
-//             else {
-//                 offset -= LastElement;
-//                 return getNaiveCost(offset) + ElementLeftNo * offset + ElementRightNo * fabs(RunningSum - offset);
-//             }
-//         }
-//         if ((*it)->getValue() < LastElement) {
-//             DuplicateCount = 0;
-//         }
-//         else {
-//             DuplicateCount++;
-//         }
-//         offset += (*it)->getValue();
-//         LastElement = (*it)->getValue();
-//     }
-
 double permutation::getCost(double d, double RunningSum, size_t ElementLeftNo, size_t ElementRightNo) {
     if (this->getSize() == 0) {
         return 0;
